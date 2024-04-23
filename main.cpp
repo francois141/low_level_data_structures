@@ -2,10 +2,12 @@
 #include <functional>
 #include <thread>
 
-#include "Stack.h"
-#include "Element.h"
+#include "lock_free_queue/Stack.hpp"
+#include "lock_free_queue/Element.hpp"
 
-int main()
+#include "fifo_queue_sp_sc/fifo_queue_sp_sc.hpp"
+
+int run_lock_free_stack()
 {
     auto lock_free_stack = Stack<int,4,100>();
 
@@ -46,6 +48,36 @@ int main()
     pop_thread.join(); pop_thread2.join();
 
     std::cout << "Computation is done" << std::endl;
+
+    return 0;
+}
+
+
+int test_fifo_queue() {
+
+    std::cout << "===== Warm up =====" << std::endl;
+    run_benchmark<Fifo<MyBuffer<4096>>>();
+
+    double total = 0.0;
+    int nb_runs = 5;
+
+    std::cout << "===== Benchmark running =====" << std::endl;
+    for(int i = 0; i < nb_runs;i++) {
+        std::cout << "Iteration : " << i << std::endl;
+        double naive = run_benchmark<Fifo<MyBuffer<4096>>>();
+        double optimized = run_benchmark<Fifo2<MyBuffer<4096>>>();
+        double speedup = naive / optimized;
+        total += speedup;
+    }
+
+    std::cout << "Speedup : " << total / nb_runs << std::endl;
+
+    return 0;
+}
+
+int main() {
+
+    test_fifo_queue();
 
     return 0;
 }
