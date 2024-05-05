@@ -7,4 +7,5 @@ add_executable(lock_free_queue main.cpp
         lock_free_queue/Stack.hpp
         lock_free_queue/Element.hpp
         fifo_queue_sp_sc/fifo_queue_sp_sc.hpp
+        priority_queue/array_prio_queue.h
 )

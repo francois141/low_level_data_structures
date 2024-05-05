@@ -5,6 +5,7 @@
 #include <mutex>
 
 #include <assert.h>
+#include <cstring>
 
 template <size_t N>
 class MyBuffer {
@@ -124,7 +125,7 @@ template<typename T>
 class Fifo2
 {
 public:
-    explicit Fifo2() : Fifo2(128),capacity_mask(127) {
+    explicit Fifo2() : Fifo2(128) {
 
     }
 
@@ -226,7 +227,7 @@ private:
 };
 
 template<typename T>
-double run_benchmark(int nb_times = 2000, int capacity = 127) {
+double run_benchmark(int nb_times = 150, int capacity = 127) {
     std::vector<T> values(nb_times, T(capacity));
 
     auto start = std::chrono::high_resolution_clock::now();

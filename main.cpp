@@ -7,6 +7,8 @@
 
 #include "fifo_queue_sp_sc/fifo_queue_sp_sc.hpp"
 
+#include "priority_queue/array_prio_queue.h"
+
 int run_lock_free_stack()
 {
     auto lock_free_stack = Stack<int,4,100>();
@@ -75,9 +77,28 @@ int test_fifo_queue() {
     return 0;
 }
 
+void test_prio_queue() {
+    std::cout << "===== Warm up =====" << std::endl;
+    run_benchmark_2();
+
+    double total = 0.0;
+    int nb_runs = 5;
+
+    std::cout << "===== Benchmark running =====" << std::endl;
+    for(int i = 0; i < nb_runs;i++) {
+        std::cout << "Iteration : " << i << std::endl;
+        double naive =     run_benchmark_2();
+        double optimized =     run_benchmark_2();
+        double speedup = naive / optimized;
+        total += speedup;
+    }
+
+    std::cout << "Speedup : " << total / nb_runs << std::endl;
+}
+
 int main() {
 
-    test_fifo_queue();
+    test_prio_queue();
 
     return 0;
 }
