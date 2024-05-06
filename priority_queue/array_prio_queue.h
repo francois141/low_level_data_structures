@@ -41,7 +41,6 @@ public:
         return output;
     }
 
-    // TODO: Find better way
     static std::vector<T> getBuffer() {}
 
 private:
@@ -70,41 +69,6 @@ private:
     std::vector<LockedBin<T>> bins;
 
 };
-
-double run_benchmark_2(int nb_times = 150) {
-    int size = 100;
-    int nb_runs = 100;
-    ArrayPriorityQueue<LockedBin<int>> priorityQueue(size);
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i = 0; i < nb_times;i++) {
-        std::thread producer([&](int idx) -> void {
-            for(int k = 0; k < nb_runs;k++) {
-                for(int j = 0; j < size;j++) {
-                    priorityQueue.push(j, 0);
-                }
-            }
-        }, 1);
-
-        std::thread consumer([&, nb_runs](int idx) -> void {
-            for(int k = 0; k < nb_runs;k++) {
-                for(int j = 0; j < size;j++) {
-                    priorityQueue.pop(j);
-                }
-            }
-        }, 1);
-
-        producer.join();
-        consumer.join();
-    }
-
-    auto end = std::chrono::high_resolution_clock::now();
-
-    double time_taken = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() * 1e-9;
-
-    return time_taken;
-}
 
 
 #endif //ARRAY_PRIO_QUEUE_H
