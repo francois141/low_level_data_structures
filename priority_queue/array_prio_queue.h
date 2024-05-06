@@ -12,10 +12,18 @@
 #include <assert.h>
 #include <thread>
 
+
+template <typename T>
+concept Bin = requires(T t, decltype(T::getBuffer())::value_type v) {
+    { t.Get() } -> std::same_as<std::optional<decltype(v)>>;
+    { t.Put(v) } -> std::same_as<void>;
+};
+
+
 template<typename T>
-class Bin {
+class LockedBin {
 public:
-    Bin() = default;
+    LockedBin() = default;
 
     void Put(T element) {
         const std::lock_guard<std::mutex> guard(this->lock);
@@ -33,16 +41,20 @@ public:
         return output;
     }
 
+    // TODO: Find better way
+    static std::vector<T> getBuffer() {}
+
 private:
-    std::mutex lock;
     std::vector<T> array;
+    std::mutex lock;
 };
 
-
-template<typename T>
+template<Bin B>
 class ArrayPriorityQueue {
 public:
-    ArrayPriorityQueue(int size) : bins(std::vector<Bin<T>>(size)), size(size) {};
+    using T = decltype(B::getBuffer())::value_type;
+
+    ArrayPriorityQueue(int size) : bins(std::vector<LockedBin<T>>(size)), size(size) {};
 
     void push(int key, T value) {
         assert(0 <= key && key < size);
@@ -55,13 +67,14 @@ public:
 
 private:
     int size;
-    std::vector<Bin<T>> bins;
+    std::vector<LockedBin<T>> bins;
+
 };
 
 double run_benchmark_2(int nb_times = 150) {
     int size = 100;
     int nb_runs = 100;
-    ArrayPriorityQueue<int> priorityQueue(size);
+    ArrayPriorityQueue<LockedBin<int>> priorityQueue(size);
 
     auto start = std::chrono::high_resolution_clock::now();
 
