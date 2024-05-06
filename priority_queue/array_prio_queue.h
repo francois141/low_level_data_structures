@@ -48,6 +48,38 @@ private:
     std::mutex lock;
 };
 
+template<typename T>
+class LockFreeBin {
+public:
+    // TODO: We assume no overflow for the moment
+    LockFreeBin() : index(0) {};
+
+    // TODO: This doesn't work, we need to add transactions
+    void Put(T element) {
+        int idx = index;
+        while(!index.compare_exchange_weak(idx, idx+1)) {}
+        array[idx] = element;
+    }
+
+    // TODO: This doesn't work, we need to add transactions
+    std::optional<T> Get() {
+        int idx = index;
+        do {
+            if(idx == 0) {
+                return -1;
+            }
+        } while((!index.compare_exchange_weak(idx, idx-1)));
+
+        return array[idx];
+    }
+
+    static std::vector<T> getBuffer() {}
+
+private:
+    std::array<T, 51200> array;
+    std::atomic<int> index;
+};
+
 template<Bin B>
 class ArrayPriorityQueue {
 public:
@@ -69,6 +101,28 @@ private:
     std::vector<LockedBin<T>> bins;
 
 };
+
+int test_fifo_queue() {
+
+    std::cout << "===== Warm up =====" << std::endl;
+    run_benchmark<Fifo<MyBuffer<4096>>>();
+
+    double total = 0.0;
+    int nb_runs = 5;
+
+    std::cout << "===== Benchmark running =====" << std::endl;
+    for (int i = 0; i < nb_runs; i++) {
+        std::cout << "Iteration : " << i << std::endl;
+        double naive = run_benchmark<Fifo<MyBuffer<4096>>>();
+        double optimized = run_benchmark<Fifo2<MyBuffer<4096>>>();
+        double speedup = naive / optimized;
+        total += speedup;
+    }
+
+    std::cout << "Speedup : " << total / nb_runs << std::endl;
+
+    return 0;
+}
 
 
 #endif //ARRAY_PRIO_QUEUE_H
