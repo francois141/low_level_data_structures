@@ -27,7 +27,7 @@ int main() {
 
             std::thread consumer([&]() -> void {
                 for (int j = 0; j < size; j++) {
-                    priorityQueue.pop(j);
+                    priorityQueue.pop();
                 }
             });
 
@@ -48,7 +48,7 @@ int main() {
 
             std::thread consumer([&]() -> void {
                 for (int j = 0; j < size; j++) {
-                    priorityQueue.pop(j);
+                    priorityQueue.pop();
                 }
             });
 
@@ -58,7 +58,7 @@ int main() {
     };
 
     ankerl::nanobench::Bench().minEpochIterations(5).run("basic_prio_queue", b_basic_prio_queue);
-    ankerl::nanobench::Bench().minEpochIterations(5).run("basic_prio_queue_2", b_basic_prio_queue_lock_free);
+    ankerl::nanobench::Bench().minEpochIterations(5).run("basic_prio_queue_lockfree", b_basic_prio_queue_lock_free);
 
     return 0;
 }

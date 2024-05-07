@@ -92,8 +92,14 @@ public:
         this->bins[key].Put(value);
     }
 
-    std::optional<T> pop(int key) {
-        return this->bins[key].Get();
+    std::optional<T> pop() {
+        for(int i = 0; i < size-1;i++) {
+            std::optional<T> out = this->bins[i].Get();
+            if(out.has_value()) {
+                return out.value();
+            }
+        }
+        return this->bins.back().Get();
     }
 
 private:
@@ -102,27 +108,6 @@ private:
 
 };
 
-int test_fifo_queue() {
-
-    std::cout << "===== Warm up =====" << std::endl;
-    run_benchmark<Fifo<MyBuffer<4096>>>();
-
-    double total = 0.0;
-    int nb_runs = 5;
-
-    std::cout << "===== Benchmark running =====" << std::endl;
-    for (int i = 0; i < nb_runs; i++) {
-        std::cout << "Iteration : " << i << std::endl;
-        double naive = run_benchmark<Fifo<MyBuffer<4096>>>();
-        double optimized = run_benchmark<Fifo2<MyBuffer<4096>>>();
-        double speedup = naive / optimized;
-        total += speedup;
-    }
-
-    std::cout << "Speedup : " << total / nb_runs << std::endl;
-
-    return 0;
-}
 
 
 #endif //ARRAY_PRIO_QUEUE_H

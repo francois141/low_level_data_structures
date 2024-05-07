@@ -254,3 +254,25 @@ double run_benchmark(int nb_times = 150, int capacity = 127) {
 
     return time_taken;
 }
+
+int test_fifo_queue() {
+
+    std::cout << "===== Warm up =====" << std::endl;
+    run_benchmark<Fifo<MyBuffer<4096>>>();
+
+    double total = 0.0;
+    int nb_runs = 5;
+
+    std::cout << "===== Benchmark running =====" << std::endl;
+    for (int i = 0; i < nb_runs; i++) {
+        std::cout << "Iteration : " << i << std::endl;
+        double naive = run_benchmark<Fifo<MyBuffer<4096>>>();
+        double optimized = run_benchmark<Fifo2<MyBuffer<4096>>>();
+        double speedup = naive / optimized;
+        total += speedup;
+    }
+
+    std::cout << "Speedup : " << total / nb_runs << std::endl;
+
+    return 0;
+}
