@@ -8,12 +8,20 @@
 #include "fifo_queue_sp_sc/fifo_queue_sp_sc.hpp"
 
 #include "priority_queue/array_prio_queue.h"
+#include "simd/Argmin.h"
 
 #define ANKERL_NANOBENCH_IMPLEMENT
 
 #include <nanobench.h>
 
 int main() {
+
+    /*Argmin<100000> obj = Argmin<100000>();
+
+
+    std::cout << obj.naive() << std::endl;
+    std::cout << obj.simd_basic() << std::endl;*/
+
 
     auto b_basic_prio_queue = [number_threads = 2, size = 100000]() -> void {
         ArrayPriorityQueue<LockedBin<int>> priorityQueue(size);
