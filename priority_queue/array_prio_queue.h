@@ -51,8 +51,9 @@ private:
 template<typename T>
 class LockFreeBin {
 public:
-    // TODO: We assume no overflow for the moment
-    LockFreeBin() : index(0) {};
+    LockFreeBin() : index(0) {
+        array = (T*)malloc(sizeof(T) * 5 * 256);
+    };
 
     // TODO: This doesn't work, we need to add transactions
     void Put(T element) {
@@ -76,7 +77,7 @@ public:
     static std::vector<T> getBuffer() {}
 
 private:
-    std::array<T, 51200> array;
+    T *array;
     std::atomic<int> index;
 };
 
@@ -85,7 +86,7 @@ class ArrayPriorityQueue {
 public:
     using T = decltype(B::getBuffer())::value_type;
 
-    ArrayPriorityQueue(int size) : bins(std::vector<LockedBin<T>>(size)), size(size) {};
+    ArrayPriorityQueue(int size) : bins(std::vector<B>(size)), size(size) {};
 
     void push(int key, T value) {
         assert(0 <= key && key < size);
@@ -104,7 +105,7 @@ public:
 
 private:
     int size;
-    std::vector<LockedBin<T>> bins;
+    std::vector<B> bins;
 
 };
 

@@ -16,26 +16,23 @@
 
 int main() {
 
-    /*Argmin<100000> obj = Argmin<100000>();
+    int size = 10000;
+    int number_threads = 5;
 
+    ArrayPriorityQueue<LockedBin<int>> priorityQueue1(size);
+    ArrayPriorityQueue<LockFreeBin<int>> priorityQueue2(size);
 
-    std::cout << obj.naive() << std::endl;
-    std::cout << obj.simd_basic() << std::endl;*/
-
-
-    auto b_basic_prio_queue = [number_threads = 2, size = 100000]() -> void {
-        ArrayPriorityQueue<LockedBin<int>> priorityQueue(size);
-
+    auto b_basic_prio_queue = [&]() -> void {
         for (int i = 0; i < number_threads; i++) {
             std::thread producer([&]() -> void {
                 for (int j = 0; j < size; j++) {
-                    priorityQueue.push(j, 0);
+                    priorityQueue1.push(j, 0);
                 }
             });
 
             std::thread consumer([&]() -> void {
                 for (int j = 0; j < size; j++) {
-                    priorityQueue.pop();
+                    priorityQueue1.pop();
                 }
             });
 
@@ -44,19 +41,17 @@ int main() {
         }
     };
 
-    auto b_basic_prio_queue_lock_free = [number_threads = 2, size = 100000]() -> void {
-        ArrayPriorityQueue<LockFreeBin<int>> priorityQueue(size);
-
+    auto b_basic_prio_queue_lock_free = [&]() -> void {
         for (int i = 0; i < number_threads; i++) {
             std::thread producer([&]() -> void {
                 for (int j = 0; j < size; j++) {
-                    priorityQueue.push(j, 0);
+                    priorityQueue2.push(j, 0);
                 }
             });
 
             std::thread consumer([&]() -> void {
                 for (int j = 0; j < size; j++) {
-                    priorityQueue.pop();
+                    priorityQueue2.pop();
                 }
             });
 
@@ -65,8 +60,8 @@ int main() {
         }
     };
 
-    ankerl::nanobench::Bench().minEpochIterations(5).run("basic_prio_queue", b_basic_prio_queue);
-    ankerl::nanobench::Bench().minEpochIterations(5).run("basic_prio_queue_lockfree", b_basic_prio_queue_lock_free);
+    ankerl::nanobench::Bench().minEpochIterations(15).run("basic_prio_queue", b_basic_prio_queue);
+    ankerl::nanobench::Bench().minEpochIterations(15).run("basic_prio_queue_lockfree", b_basic_prio_queue_lock_free);
 
     return 0;
 }
