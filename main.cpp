@@ -1,6 +1,7 @@
 #include <iostream>
 #include <functional>
 #include <thread>
+#include <string>
 
 #include "lock_free_queue/Stack.hpp"
 #include "lock_free_queue/Element.hpp"
@@ -14,7 +15,10 @@
 
 #include <nanobench.h>
 
-int main() {
+using namespace std;
+
+void benchmark_prio_queue() {
+    std::cout << "### Priority queue benchmark" << std::endl;
 
     int size = 10000;
     int number_threads = 5;
@@ -62,6 +66,32 @@ int main() {
 
     ankerl::nanobench::Bench().minEpochIterations(15).run("basic_prio_queue", b_basic_prio_queue);
     ankerl::nanobench::Bench().minEpochIterations(15).run("basic_prio_queue_lockfree", b_basic_prio_queue_lock_free);
+}
+
+void benchmark_simd_min() {
+    std:cout << "### Benchmark minimum simd" << std::endl;
+
+    const unsigned int size = 100 *4096;
+
+    Argmin<size> minAlgorithm = Argmin<size>();
+
+    ankerl::nanobench::Bench().minEpochIterations(15).run("naive_argmin", [&]() {
+        minAlgorithm.naive();
+    });
+
+    ankerl::nanobench::Bench().minEpochIterations(15).run("simd_naive_argmin", [&]() {
+        minAlgorithm.simd_basic();
+    });
+}
+
+int main() {
+    // sudo $(which pyperf) system tune
+
+    // Simd
+    benchmark_simd_min();
+
+    // Priority queue
+    benchmark_prio_queue();
 
     return 0;
 }
