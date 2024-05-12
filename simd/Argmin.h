@@ -59,10 +59,10 @@ public:
 
         // Sequential part
         int idx = 0;
-        int best = std::numeric_limits<float>::max();
+        float best = std::numeric_limits<float>::max();
 
         for(int i = 0; i < 8;i++) {
-            if(min_values[i] < best) {
+            if(min_values[i] <= best) {
                 idx = index[i];
                 best = min_values[i];
             }
@@ -76,6 +76,10 @@ public:
         return 0;
     }
 
+    float operator[](int idx) {
+        assert(idx >= 0 && idx < size);
+        return arr[idx];
+    }
 
 
 private:
