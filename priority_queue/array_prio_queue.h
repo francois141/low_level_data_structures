@@ -51,34 +51,28 @@ private:
 template<typename T>
 class LockFreeBin {
 public:
-    LockFreeBin() : index(0) {
-        array = (T*)malloc(sizeof(T) * 5 * 256);
-    };
+    LockFreeBin() : lock_free_stack() {};
 
-    // TODO: This doesn't work, we need to add transactions
-    void Put(T element) {
-        int idx = index;
-        while(!index.compare_exchange_weak(idx, idx+1)) {}
-        array[idx] = element;
+    // TODO: Optimize now
+    void Put(const T& element) {
+        this->lock_free_stack.Push(new Element<T>(nullptr, element));
     }
 
-    // TODO: This doesn't work, we need to add transactions
+    // TODO: Optimize now
     std::optional<T> Get() {
-        int idx = index;
-        do {
-            if(idx == 0) {
-                return -1;
-            }
-        } while((!index.compare_exchange_weak(idx, idx-1)));
-
-        return array[idx];
+        auto out = this->lock_free_stack.Pop();
+        if (out == nullptr) {
+            return -1;
+        }
+        auto output = out->value;
+        delete out;
+        return output;
     }
 
     static std::vector<T> getBuffer() {}
 
 private:
-    T *array;
-    std::atomic<int> index;
+    Stack<T, 1,100> lock_free_stack;
 };
 
 template<Bin B>

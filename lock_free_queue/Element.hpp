@@ -18,10 +18,9 @@ public:
         return _previous_element;
     }
 
-
+    T value;
 private:
     Element *_previous_element;
-    T value;
 };
 
 
