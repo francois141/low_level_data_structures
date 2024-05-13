@@ -72,7 +72,7 @@ public:
     static std::vector<T> getBuffer() {}
 
 private:
-    Stack<T, 1,100> lock_free_stack;
+    LockFreeStack<T, 1,100> lock_free_stack;
 };
 
 template<Bin B>

@@ -9,11 +9,12 @@
 #include <algorithm>
 #include <chrono>
 #include <thread>
+#include <stack>
 
 #include "Element.hpp"
 
 template <typename T, int backoffMin, int backoffMax>
-class Stack {
+class LockFreeStack {
 public:
     // Make sure data structure is lock free
     static_assert(std::atomic<Element<T> *>::is_always_lock_free);
@@ -22,17 +23,17 @@ public:
     static_assert(backoffMin > 0);
     static_assert(backoffMax > 0);
 
-    Stack() {
+    LockFreeStack() {
         head.store(new Element<T>(nullptr, 0));
     };
 
-    Stack(const Stack &other) = delete;
+    LockFreeStack(const LockFreeStack &other) = delete;
 
-    Stack(Stack &&other) noexcept = delete;
+    LockFreeStack(LockFreeStack &&other) noexcept = delete;
 
-    Stack & operator=(const Stack &other) = delete;
+    LockFreeStack & operator=(const LockFreeStack &other) = delete;
 
-    Stack & operator=(Stack &&other) noexcept = delete;
+    LockFreeStack & operator=(LockFreeStack &&other) noexcept = delete;
 
     void Push(Element<T> *element) {
         element->previous_element() = head;
@@ -53,10 +54,10 @@ public:
             }
 
             if(head.compare_exchange_weak( current, current->previous_element())) {
-                sleep_and_increaseBackoff(currentBackoff);
-
                 return current;
             }
+
+            sleep_and_increaseBackoff(currentBackoff);
         }
     }
 
@@ -71,51 +72,63 @@ private:
     }
 };
 
+template <typename T>
+class NaiveStack {
+public:
 
-int run_lock_free_stack() {
-    auto lock_free_stack = Stack<int, 4, 100>();
+    NaiveStack() {};
 
-    std::function<void()> pusher = [&lock_free_stack]() -> void {
+    NaiveStack(const NaiveStack &other) = delete;
+
+    NaiveStack(NaiveStack &&other) noexcept = delete;
+
+    NaiveStack & operator=(const NaiveStack &other) = delete;
+
+    NaiveStack & operator=(NaiveStack &&other) noexcept = delete;
+
+    void Push(Element<T> *element) {
+        std::lock_guard<std::mutex> lock(mutex);
+        internalStack.push(element);
+    }
+
+    Element<T>* Pop() {
+        std::lock_guard<std::mutex> lock(mutex);
+        if(internalStack.empty()) {
+            return nullptr;
+        }
+
+        auto val = internalStack.top();
+        internalStack.pop();
+
+        return val;
+    }
+
+private:
+    std::mutex mutex;
+    std::stack<Element<T>*> internalStack;
+};
+
+template<typename T>
+void benchmark_stack(T& stack_to_benchmark) {
+    std::function<void()> pusher = [&stack_to_benchmark]() -> void {
         for (int i = 0; i < 100; i++) {
-            lock_free_stack.Push(new Element<int>(nullptr, 0));
+            stack_to_benchmark.Push(new Element<int>(nullptr, 0));
         }
     };
 
-    std::function<void()> pusher2 = [&lock_free_stack]() -> void {
+    std::function<void()> popper = [&stack_to_benchmark]() -> void {
         for (int i = 0; i < 100; i++) {
-            lock_free_stack.Push(new Element<int>(nullptr, 0));
+            Element<int> *pointer = stack_to_benchmark.Pop();
         }
     };
 
-    std::function<void()> popper = [&lock_free_stack]() -> void {
-        for (int i = 0; i < 100; i++) {
-            Element<int> *pointer = lock_free_stack.Pop();
-            delete pointer;
-        }
-    };
-
-    std::function<void()> popper2 = [&lock_free_stack]() -> void {
-        for (int i = 0; i < 100; i++) {
-            Element<int> *pointer = lock_free_stack.Pop();
-            delete pointer;
-        }
-    };
 
     // Launch both at the same time
     std::thread push_thread(pusher);
-    std::thread push_thread2(pusher2);
-
     std::thread pop_thread(popper);
-    std::thread pop_thread2(popper2);
 
     push_thread.join();
-    push_thread2.join();
     pop_thread.join();
-    pop_thread2.join();
-
-    std::cout << "Computation is done" << std::endl;
-
-    return 0;
 }
 
 #endif //STACK_H

@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "simd/Argmin.h"
+#include "lock_free_queue/LockFreeStack.hpp"
 
 // Test for argmin SIMD
 TEST(SIMD_ARGMIN, BasicTest) {
@@ -31,5 +32,32 @@ TEST(SIMD_ARGMIN, StressTest) {
 
 }
 
+// Simple stack test
+TEST(STACK, BasicTest) {
+    const unsigned int size = 256;
+
+    {
+        NaiveStack<int> s = NaiveStack<int>();
+        for(int i = 0; i < size;i++) {
+            s.Push(new Element<int>(nullptr, i));
+        }
+
+        for(int i = size-1; i >= 0;i--) {
+            auto val = s.Pop();
+            EXPECT_EQ(val->value, i);
+        }
+    }
+    {
+        LockFreeStack<int,4,100> s = LockFreeStack<int,4,100>();
+        for(int i = 0; i < size;i++) {
+            s.Push(new Element<int>(nullptr, i));
+        }
+
+        for(int i = size-1; i >= 0;i--) {
+            auto val = s.Pop();
+            EXPECT_EQ(val->value, i);
+        }
+    }
+}
 
 

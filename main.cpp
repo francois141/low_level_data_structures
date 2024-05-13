@@ -3,7 +3,7 @@
 #include <thread>
 #include <string>
 
-#include "lock_free_queue/Stack.hpp"
+#include "lock_free_queue/LockFreeStack.hpp"
 #include "lock_free_queue/Element.hpp"
 
 #include "fifo_queue_sp_sc/fifo_queue_sp_sc.hpp"
@@ -84,6 +84,21 @@ void benchmark_simd_min() {
     });
 }
 
+void benchmark_stack() {
+    std::cout << "### Benchmark stack" << std::endl;
+
+    auto lock_stack = NaiveStack<int>();
+    auto lock_free_stack = LockFreeStack<int,4,100>();
+
+    ankerl::nanobench::Bench().minEpochIterations(15).run("naive_stack", [&]() {
+        benchmark_stack(lock_stack);
+    });
+
+    ankerl::nanobench::Bench().minEpochIterations(15).run("lock_free_stack", [&]() {
+        benchmark_stack(lock_free_stack);
+    });
+}
+
 int main() {
     // sudo $(which pyperf) system tune
 
@@ -92,6 +107,9 @@ int main() {
 
     // Priority queue
     benchmark_prio_queue();
+
+    // Stack
+    benchmark_stack();
 
     return 0;
 }
