@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "simd/Argmin.h"
 #include "lock_free_queue/LockFreeStack.hpp"
+#include "priority_queue/array_prio_queue.h"
 
 // Test for argmin SIMD
 TEST(SIMD_ARGMIN, BasicTest) {
@@ -61,3 +62,20 @@ TEST(STACK, BasicTest) {
 }
 
 
+// Simple priority queue test
+TEST(PRIORITY_QUEUE, BasicTest) {
+    const unsigned int size = 10;
+
+    {
+        ArrayPriorityQueue<LockedBin<int>> priorityQueue(size);
+        for(int i = 0; i < size;i++) {
+            priorityQueue.push(size-1-i,size-1-i);
+        }
+
+        for(int i = 0; i < size;i++) {
+            std::optional<int> val = priorityQueue.pop();
+            EXPECT_TRUE(val.has_value());
+            EXPECT_EQ(val.value(), i);
+        }
+    }
+}

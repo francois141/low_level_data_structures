@@ -33,7 +33,7 @@ public:
     std::optional<T> Get() {
         const std::lock_guard<std::mutex> guard(this->lock);
         if(this->array.empty()) {
-            return -1;
+            return std::nullopt;
         }
 
         T output = array.back();
@@ -62,7 +62,7 @@ public:
     std::optional<T> Get() {
         auto out = this->lock_free_stack.Pop();
         if (out == nullptr) {
-            return -1;
+            return std::nullopt;
         }
         auto output = out->value;
         delete out;
