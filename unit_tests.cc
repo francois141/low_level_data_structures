@@ -2,6 +2,7 @@
 #include "simd/Argmin.h"
 #include "lock_free_queue/LockFreeStack.hpp"
 #include "priority_queue/array_prio_queue.h"
+#include "linked_list/linked_list.hpp"
 
 // Test for argmin SIMD
 TEST(SIMD_ARGMIN, BasicTest) {
@@ -61,7 +62,6 @@ TEST(STACK, BasicTest) {
     }
 }
 
-
 // Simple priority queue test
 TEST(PRIORITY_QUEUE, BasicTest) {
     const unsigned int size = 10;
@@ -76,6 +76,53 @@ TEST(PRIORITY_QUEUE, BasicTest) {
             std::optional<int> val = priorityQueue.pop();
             EXPECT_TRUE(val.has_value());
             EXPECT_EQ(val.value(), i);
+        }
+    }
+}
+
+// Test linked list
+TEST(LINKED_LIST, CoarseGrained) {
+    srand((unsigned) time(NULL));
+    const int size = 256;
+
+    CoarseLinkedList<int> coarseLinkedList;
+    SetOracle<int> oracle;
+
+    // Get a random number
+    for(int i = 0; i < 10000;i++) {
+        int action = rand() % 3;
+        int random = rand() % size;
+        switch (action) {
+            case 0:
+                EXPECT_EQ(coarseLinkedList.Add(random), oracle.Add(random));
+            case 1:
+                EXPECT_EQ(coarseLinkedList.Remove(random), oracle.Remove(random));
+            case 2:
+                EXPECT_EQ(coarseLinkedList.Contains(random), oracle.Contains(random));
+        }
+    }
+}
+
+
+// Test linked list
+TEST(LINKED_LIST, FinedGrained) {
+    srand((unsigned) time(NULL));
+    const int size = 256;
+
+    FineLinkedList<int> coarseLinkedList;
+    SetOracle<int> oracle;
+
+    // Get a random number
+    for(int i = 0; i < 10000;i++) {
+        int action = rand() % 3;
+        int random = rand() % size;
+        switch (action) {
+            case 0:
+                EXPECT_EQ(coarseLinkedList.Add(random), oracle.Add(random));
+            case 1:
+                EXPECT_EQ(coarseLinkedList.Remove(random), oracle.Remove(random));
+            case 2:
+                EXPECT_EQ(coarseLinkedList.Contains(random), oracle.Contains(random));
         }
     }
 }

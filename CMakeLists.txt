@@ -19,6 +19,7 @@ add_executable(lock_free_queue main.cpp
         fifo_queue_sp_sc/fifo_queue_sp_sc.hpp
         priority_queue/array_prio_queue.h
         simd/Argmin.h
+        linked_list/linked_list.hpp
 )
 
 target_link_libraries(lock_free_queue PRIVATE nanobench)
@@ -38,6 +39,7 @@ enable_testing()
 add_executable(
         unit_tests
         unit_tests.cc
+        linked_list/linked_list.hpp
 )
 target_link_libraries(
         unit_tests
