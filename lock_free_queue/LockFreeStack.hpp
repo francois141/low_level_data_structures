@@ -10,6 +10,7 @@
 #include <chrono>
 #include <thread>
 #include <stack>
+#include <optional>
 
 #include "Element.hpp"
 
@@ -35,8 +36,8 @@ public:
 
     LockFreeStack & operator=(LockFreeStack &&other) noexcept = delete;
 
-    void Push(Element<T> *element) {
-        element->previous_element() = head;
+    void Push(T value) {
+        Element<T> *element = new Element<T>(head, value);
         int currentBackoff = backoffMin;
 
         while(!head.compare_exchange_weak(element->previous_element(), element)) {
@@ -44,17 +45,19 @@ public:
         }
     }
 
-    Element<T>* Pop() {
+    std::optional<T> Pop() {
         Element<T>* current = head.load();
 
         int currentBackoff = backoffMin;
         while(true) {
             if(current == nullptr) {
-                return nullptr;
+                return std::nullopt;
             }
 
             if(head.compare_exchange_weak( current, current->previous_element())) {
-                return current;
+                auto val = current->value;
+                delete current;
+                return val;
             }
 
             sleep_and_increaseBackoff(currentBackoff);
@@ -112,13 +115,13 @@ template<typename T>
 void benchmark_stack(T& stack_to_benchmark) {
     std::function<void()> pusher = [&stack_to_benchmark]() -> void {
         for (int i = 0; i < 100; i++) {
-            stack_to_benchmark.Push(new Element<int>(nullptr, 0));
+            stack_to_benchmark.Push(0);
         }
     };
 
     std::function<void()> popper = [&stack_to_benchmark]() -> void {
         for (int i = 0; i < 100; i++) {
-            Element<int> *pointer = stack_to_benchmark.Pop();
+            stack_to_benchmark.Pop();
         }
     };
 

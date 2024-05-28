@@ -52,12 +52,12 @@ TEST(STACK, BasicTest) {
     {
         LockFreeStack<int,4,100> s = LockFreeStack<int,4,100>();
         for(int i = 0; i < size;i++) {
-            s.Push(new Element<int>(nullptr, i));
+            s.Push(i);
         }
 
         for(int i = size-1; i >= 0;i--) {
             auto val = s.Pop();
-            EXPECT_EQ(val->value, i);
+            EXPECT_EQ(val.value(), i);
         }
     }
 }

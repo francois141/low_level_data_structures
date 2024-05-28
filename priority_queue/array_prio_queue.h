@@ -55,18 +55,12 @@ public:
 
     // TODO: Optimize now
     void Put(const T& element) {
-        this->lock_free_stack.Push(new Element<T>(nullptr, element));
+        this->lock_free_stack.Push(element);
     }
 
     // TODO: Optimize now
     std::optional<T> Get() {
-        auto out = this->lock_free_stack.Pop();
-        if (out == nullptr) {
-            return std::nullopt;
-        }
-        auto output = out->value;
-        delete out;
-        return output;
+        return this->lock_free_stack.Pop();
     }
 
     static std::vector<T> getBuffer() {}
