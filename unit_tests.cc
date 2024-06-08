@@ -1,8 +1,13 @@
 #include "gtest/gtest.h"
-#include "simd/Argmin.h"
+
 #include "lock_free_queue/LockFreeStack.hpp"
 #include "priority_queue/array_prio_queue.h"
 #include "linked_list/linked_list.hpp"
+
+
+#if defined(__x86_64__)
+
+#include "simd/Argmin.h"
 
 // Test for argmin SIMD
 TEST(SIMD_ARGMIN, BasicTest) {
@@ -33,6 +38,10 @@ TEST(SIMD_ARGMIN, StressTest) {
     }
 
 }
+
+#endif
+
+
 
 // Simple stack test
 TEST(STACK, BasicTest) {

@@ -9,7 +9,15 @@
 #include "fifo_queue_sp_sc/fifo_queue_sp_sc.hpp"
 
 #include "priority_queue/array_prio_queue.h"
+
+
+#if defined(__x86_64__)
+/* 64 bit detected */
 #include "simd/Argmin.h"
+
+#endif
+
+
 
 #define ANKERL_NANOBENCH_IMPLEMENT
 
@@ -20,7 +28,7 @@ using namespace std;
 void benchmark_prio_queue() {
     std::cout << "### Priority queue benchmark" << std::endl;
 
-    int size = 10000;
+    int size = 1000;
     int number_threads = 5;
 
     ArrayPriorityQueue<LockedBin<int>> priorityQueue1(size);
@@ -68,6 +76,7 @@ void benchmark_prio_queue() {
     ankerl::nanobench::Bench().minEpochIterations(15).run("basic_prio_queue_lockfree", b_basic_prio_queue_lock_free);
 }
 
+#if defined(__x86_64__)
 void benchmark_simd_min() {
     std:cout << "### Benchmark minimum simd" << std::endl;
 
@@ -83,6 +92,9 @@ void benchmark_simd_min() {
         minAlgorithm.simd_basic();
     });
 }
+
+#endif
+
 
 void benchmark_stack() {
     std::cout << "### Benchmark stack" << std::endl;
@@ -102,8 +114,10 @@ void benchmark_stack() {
 int main() {
     // sudo $(which pyperf) system tune
 
+#if defined(__x86_64__)
     // Simd
     benchmark_simd_min();
+#endif
 
     // Priority queue
     benchmark_prio_queue();
