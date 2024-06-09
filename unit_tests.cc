@@ -1,3 +1,4 @@
+#include "fast_binary_search/binary_search_algo.h"
 #include "gtest/gtest.h"
 
 #include "lock_free_queue/LockFreeStack.hpp"
@@ -133,5 +134,23 @@ TEST(LINKED_LIST, FinedGrained) {
             case 2:
                 EXPECT_EQ(coarseLinkedList.Contains(random), oracle.Contains(random));
         }
+    }
+}
+
+// Test binary search
+TEST(BINARY_SEARCH, TestBinarySearch) {
+    int size = 100000;
+    binary_search_algo bs(size);
+
+    for(int i = 0; i < size;i++) {
+        EXPECT_TRUE(bs.base_binary_search(i));
+        EXPECT_TRUE(bs.branchless_binary_search(i));
+        EXPECT_TRUE(bs.cache_friendly_binary_search(i));
+    }
+
+    for(int i = size; i < 2*size;i++) {
+        EXPECT_FALSE(bs.base_binary_search(i));
+        EXPECT_FALSE(bs.branchless_binary_search(i));
+        EXPECT_FALSE(bs.cache_friendly_binary_search(i));
     }
 }

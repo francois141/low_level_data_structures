@@ -8,9 +8,7 @@
 #include <vector>
 #include <mutex>
 #include <optional>
-#include <array>
 #include <assert.h>
-#include <thread>
 
 
 template <typename T>

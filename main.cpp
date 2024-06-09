@@ -23,6 +23,8 @@
 
 #include <nanobench.h>
 
+#include "fast_binary_search/binary_search_algo.h"
+
 using namespace std;
 
 void benchmark_prio_queue() {
@@ -111,6 +113,33 @@ void benchmark_stack() {
     });
 }
 
+
+void benchmark_binary_search() {
+    std::cout << "### Benchmark binary search" << std::endl;
+
+    int size = 400000;
+
+    binary_search_algo bs(size);
+
+    ankerl::nanobench::Bench().minEpochIterations(15).run("base_binary_search", [&]() {
+        for(int i = 0; i < size;i++) {
+            bs.base_binary_search(i);
+        }
+    });
+
+    ankerl::nanobench::Bench().minEpochIterations(15).run("branchless_binary_search", [&]() {
+        for(int i = 0; i < size;i++) {
+            bs.branchless_binary_search(i);
+        }
+    });
+
+    ankerl::nanobench::Bench().minEpochIterations(15).run("optimized_binary_search", [&]() {
+        for(int i = 0; i < size;i++) {
+            bs.cache_friendly_binary_search(i);
+        }
+    });
+}
+
 int main() {
     // sudo $(which pyperf) system tune
 
@@ -119,11 +148,18 @@ int main() {
     benchmark_simd_min();
 #endif
 
+    // Binary search
+    benchmark_binary_search();
+
+    exit(0);
+
     // Priority queue
     benchmark_prio_queue();
 
     // Stack
     benchmark_stack();
+
+
 
     return 0;
 }
