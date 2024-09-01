@@ -5,6 +5,8 @@
 #ifndef BINARY_SEARCH_H
 #define BINARY_SEARCH_H
 
+#include <cstdlib>
+
 class binary_search_algo {
 
 public:

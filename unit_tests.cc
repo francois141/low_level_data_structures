@@ -9,6 +9,8 @@
 #if defined(__x86_64__)
 
 #include "simd/Argmin.h"
+#include "simd/prefix_sum.h"
+
 
 // Test for argmin SIMD
 TEST(SIMD_ARGMIN, BasicTest) {
@@ -38,6 +40,15 @@ TEST(SIMD_ARGMIN, StressTest) {
         EXPECT_EQ(minAlgorithm[minAlgorithm.naive()], minAlgorithm[minAlgorithm.simd_basic()]);
     }
 
+}
+
+// Test linked list
+TEST(PREFIX_SUM, PrefixSum) {
+    EXPECT_EQ(PrefixSum<0>().naive(), PrefixSum<0>().stl());
+    EXPECT_EQ(PrefixSum<1>().naive(), PrefixSum<1>().stl());
+    EXPECT_EQ(PrefixSum<64>().naive(), PrefixSum<64>().stl());
+    EXPECT_EQ(PrefixSum<512>().naive(), PrefixSum<512>().stl());
+    EXPECT_EQ(PrefixSum<100000>().naive(), PrefixSum<100000>().stl());
 }
 
 #endif

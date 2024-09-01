@@ -21,6 +21,7 @@ add_executable(lock_free_queue main.cpp
         simd/Argmin.h
         linked_list/linked_list.hpp
         fast_binary_search/binary_search_algo.h
+        simd/prefix_sum.h
 )
 
 target_link_libraries(lock_free_queue PRIVATE nanobench)
@@ -42,6 +43,7 @@ add_executable(
         unit_tests.cc
         linked_list/linked_list.hpp
         fast_binary_search/binary_search_algo.h
+        simd/prefix_sum.h
 )
 target_link_libraries(
         unit_tests

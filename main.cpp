@@ -14,6 +14,7 @@
 #if defined(__x86_64__)
 /* 64 bit detected */
 #include "simd/Argmin.h"
+#include "simd/prefix_sum.h"
 
 #endif
 
@@ -95,6 +96,22 @@ void benchmark_simd_min() {
     });
 }
 
+void benchmark_prefix_sum() {
+    std::cout << "### Benchmark prefix sum" << std::endl;
+
+    auto pf1 = PrefixSum<100*4096>();
+
+
+    ankerl::nanobench::Bench().minEpochIterations(15).run("prefix_sum_naive", [&]() {
+        pf1.naive();
+    });
+
+    ankerl::nanobench::Bench().minEpochIterations(15).run("prefix_sum_stl", [&]() {
+        pf1.stl();
+    });
+}
+
+
 #endif
 
 
@@ -117,7 +134,7 @@ void benchmark_stack() {
 void benchmark_binary_search() {
     std::cout << "### Benchmark binary search" << std::endl;
 
-    int size = 400000;
+    int size = 10000;
 
     binary_search_algo bs(size);
 
@@ -140,12 +157,16 @@ void benchmark_binary_search() {
     });
 }
 
+
 int main() {
     // sudo $(which pyperf) system tune
 
 #if defined(__x86_64__)
     // Simd
     benchmark_simd_min();
+
+    // Prefix sum
+    benchmark_prefix_sum();
 #endif
 
     // Binary search
