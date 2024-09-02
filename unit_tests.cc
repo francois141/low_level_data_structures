@@ -45,10 +45,18 @@ TEST(SIMD_ARGMIN, StressTest) {
 // Test linked list
 TEST(PREFIX_SUM, PrefixSum) {
     EXPECT_EQ(PrefixSum<0>().naive(), PrefixSum<0>().stl());
-    EXPECT_EQ(PrefixSum<1>().naive(), PrefixSum<1>().stl());
+    EXPECT_EQ(PrefixSum<8>().naive(), PrefixSum<8>().stl());
     EXPECT_EQ(PrefixSum<64>().naive(), PrefixSum<64>().stl());
     EXPECT_EQ(PrefixSum<512>().naive(), PrefixSum<512>().stl());
     EXPECT_EQ(PrefixSum<100000>().naive(), PrefixSum<100000>().stl());
+}
+
+TEST(PREFIX_SUM_SIMD, PrefixSum) {
+    EXPECT_EQ(PrefixSum<0>().simd_naive(), PrefixSum<0>().stl());
+    EXPECT_EQ(PrefixSum<8>().simd_naive(), PrefixSum<8>().stl());
+    EXPECT_EQ(PrefixSum<16>().simd_naive(), PrefixSum<16>().stl());
+    //EXPECT_EQ(PrefixSum<512>().simd_naive(), PrefixSum<512>().stl());
+    //EXPECT_EQ(PrefixSum<100000>().simd_naive(), PrefixSum<100000>().stl());
 }
 
 #endif
